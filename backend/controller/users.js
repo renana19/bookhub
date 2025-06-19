@@ -1,7 +1,10 @@
 import { json } from "express";
 
 // 📁 controllers/userController.js
-import * as userService from "../services/userService.js";
+import * as userService from "../service/userData.js";
+export const user = (req, res) => {
+  res.send('user handler');
+};
 
 // 📥 שליפת משתמש לפי מזהה
 export async function getUser(req, res) {

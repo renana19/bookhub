@@ -1,4 +1,4 @@
-import pool from '../db.js';
+import pool from './db.js';
 
 const SALT_ROUNDS = 10;
 

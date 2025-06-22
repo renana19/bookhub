@@ -1,0 +1,29 @@
+.home-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.home-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #262626;
+}
+
+.home-subtitle {
+  text-align: center;
+  color: #8e8e8e;
+  margin-bottom: 2rem;
+}
+
+.home-forums {
+  background: #fafafa;
+  padding: 1rem;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+}
+
+.home-forums h3 {
+  margin-bottom: 1rem;
+}

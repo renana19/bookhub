@@ -1,16 +1,38 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import { useState, useContext, createContext, useEffect } from 'react';
-import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState, useEffect, createContext } from "react";
 
-import Login from './Login';
-import Register from './Register';
+import Navbar from "./Navbar";
 
-interface UserContextType {
-  contextUser: any;
-  setcontextUser: React.Dispatch<React.SetStateAction<any>>;
-}
+// 🔁 עמודים ציבוריים
+import Home from "./Home";
+import Login from "./Login";
+import Register from "./Register";
+import Forums from "./Forums";
+import Forum from "./Forum";
+import Post from "./Post";
+import SearchPage from "./SearchPage";
+import Books from "./Books";  // עמוד ספרים 
+import Book from "./Book";  // עמוד ספר בודד
 
-export const userContext = createContext<UserContextType >(null!);
+// 🔐 עמודים מוגנים
+
+import NewPost from "./NewPost";
+import NewComment from "./NewComment";
+
+import UserProfile from "./UserProfile";
+import MyPosts from "./MyPosts";
+import Favorites from "./Favorites";
+import Notifications from "./Notifications";
+import Followers from "./Followers";
+import Following from "./Following";
+
+
+
+// 🔒 רכיב הגנה
+import PrivateRoute from "./PrivateRoute";
+
+// 🧠 הקשר משתמש
+export const userContext = createContext<any>(null);
 
 function App() {
   const [contextUser, setcontextUser] = useState(() => {
@@ -18,7 +40,7 @@ function App() {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-useEffect(() => {
+  useEffect(() => {
     if (contextUser) {
       localStorage.setItem("contextUser", JSON.stringify(contextUser));
     } else {
@@ -26,19 +48,60 @@ useEffect(() => {
     }
   }, [contextUser]);
 
-
   return (
     <userContext.Provider value={{ contextUser, setcontextUser }}>
-  
-     
-      
-     
-      <Routes>
-          <Route index element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/*" element={<h2>Home Page</h2>} />
-      </Routes>
 
+
+      <Navbar />
+      <Routes>
+        {/* 🌍 עמודים פתוחים */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forums" element={<Forums />} />
+        <Route path="/books" element={<Books />} />
+        <Route path="/books/:id" element={<Books />} />
+        <Route path="/forums/:id" element={<Forum />} />
+        <Route path="/posts/:id" element={<Post />} />
+        <Route path="/search" element={<SearchPage />} />
+
+        <Route path="/followers" element={ <Followers /> } />
+        <Route path="/following" element={<Following />} />
+        <Route path="/users/:id/posts" element={ <MyPosts /> } />
+
+
+
+        {/* 🔐 עמודים שמחייבים התחברות */}
+
+
+        <Route path="/forums/:id/newPost" element={
+          <PrivateRoute><NewPost /></PrivateRoute>
+        } />
+
+        <Route path="/posts/:id/newComment" element={
+          <PrivateRoute><NewComment /></PrivateRoute>
+        } />
+
+
+
+        <Route path="/profile" element={
+          <PrivateRoute><UserProfile /></PrivateRoute>
+        } />
+
+
+        
+        <Route path="/favorites" element={
+          <PrivateRoute><Favorites /></PrivateRoute>
+        } />
+
+        <Route path="/notifications" element={
+          <PrivateRoute><Notifications /></PrivateRoute>
+        } />
+        
+
+        {/* 🧭 דף שגיאה */}
+        <Route path="*" element={<h2>404 - הדף לא נמצא</h2>} />
+      </Routes>
 
     </userContext.Provider>
   );

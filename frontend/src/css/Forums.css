@@ -1,0 +1,20 @@
+.forums-container {
+  padding: 2rem;
+  direction: rtl;
+}
+
+.forums-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.forums-container li {
+  margin: 1rem 0;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 1rem;
+}
+
+.forums-container a {
+  text-decoration: none;
+  color: #333;
+}

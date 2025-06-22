@@ -3,6 +3,6 @@ import { getPopularForums } from "../controller/forumController";
 
 const router = express.Router();
 
-router.get("/popular", getPopularForums);;
+router.get("/popular", getPopularForums);
 
 export default router;

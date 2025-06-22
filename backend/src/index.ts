@@ -1,9 +1,9 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import userRoutes from "./routes/userRoute";
+import forums from "./routes/forums";
 import { login } from "./controller/userController";
 import postRoutes from "./routes/postRoutes";
-
 
 const app = express();
 app.use(cors());
@@ -25,16 +25,9 @@ app.use("/posts", postRoutes);
 app.use("/notifications", userRoutes);
 app.use("/comments", userRoutes);
 app.use("/follows", userRoutes);
-app.use("/forums", userRoutes);
+app.use("/forums", forums);
 
 app.use("/favorites", userRoutes);
 app.use("/search", userRoutes);
-
-
-
-
-
-
-
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

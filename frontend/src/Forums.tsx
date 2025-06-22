@@ -14,7 +14,7 @@ export default function Forums() {
 
   useEffect(() => {
     const loadForums = async () => {
-      const data = await fetchResource("forums");
+      const data = await fetchResource("forums/popular");
       if (data) setForums(data);
       setLoading(false);
     };

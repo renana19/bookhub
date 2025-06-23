@@ -13,6 +13,7 @@ export default function UserProfile() {
   const isOwnProfile = contextUser && contextUser.id === Number(userId);
 
   useEffect(() => {
+     
     fetch(`http://localhost:8080/users/${userId}`)
       .then(res => res.json())
       .then(data => setUserInfo(data));

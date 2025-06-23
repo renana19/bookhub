@@ -1,14 +1,13 @@
-export interface Post {
-  id: number;
+
+
+export interface newPost {
   title: string;
   content: string;
   userId: number;
   forumId: number;
   createdAt: Date;
 }
-export interface NewPost {
-  title: string;
-  content: string;
-  userId: number;
-  forumId: number;
+export interface post extends newPost {
+    id: number;
+    
 }

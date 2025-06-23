@@ -1,79 +1,105 @@
 import { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { fetchResource, addResource, updateResource, deleteResource } from "./DBAPI";
 import { userContext } from "./App";
+import Post from "./Post";
 
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  createdAt: string;
-}
 
-export default function MyPosts() {
+export default function Posts() {
+  const { userId } = useParams();
   const { contextUser } = useContext(userContext);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!contextUser) return;
+  const [posts, setPosts] = useState<PostData>([]);
+  const [newPostTitle, setNewPostTitle] = useState("");
+  const [newPostContent, setNewPostContent] = useState("");
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
-    const fetchPosts = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/users/${contextUser.id}/posts`);
-        if (!res.ok) throw new Error("Failed to fetch posts");
-        const data = await res.json();
-        setPosts(data);
-      } catch (err) {
-        console.error("Error fetching posts:", err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchPosts = async () => {
+    try {
+      const data = await fetchResource("posts", { userId });
+      setPosts(data || []);
+    } catch (err) {
+      console.error("Error fetching posts:", err);
+    }
+  };
+
+  const handleAddPost = async () => {
+    if (!newPostTitle.trim() || !newPostContent.trim()) {
+      alert("Please provide both title and content for the post.");
+      return;
+    }
+
+    const newPost = {
+      userId: Number(userId),
+      title: newPostTitle,
+      content: newPostContent,
+      forumId: 1  // לדוגמה. תרצי להתאים לפורום הנוכחי
     };
 
-    fetchPosts();
-  }, [contextUser]);
-
-  const handleDelete = async (postId: number) => {
-    if (!window.confirm("האם את בטוחה שברצונך למחוק את הפוסט?")) return;
-
     try {
-      const res = await fetch(`http://localhost:8080/posts/${postId}`, {
-        method: "DELETE"
-      });
-      if (!res.ok) throw new Error("Failed to delete post");
-      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      await addResource("posts", newPost);
+      setNewPostTitle("");
+      setNewPostContent("");
+      fetchPosts();
+    } catch (err) {
+      console.error("Error adding post:", err);
+    }
+  };
+
+  const handlePostUpdated = async (id: number, updatedData: Partial<PostData>) => {
+    try {
+      await updateResource("posts", id, updatedData);
+      fetchPosts();
+    } catch (err) {
+      console.error("Error updating post:", err);
+    }
+  };
+
+  const handlePostDeleted = async (id: number) => {
+    try {
+      await deleteResource("posts", id);
+      fetchPosts();
     } catch (err) {
       console.error("Error deleting post:", err);
     }
   };
 
-  if (!contextUser) {
-    return <p>עליך להתחבר כדי לצפות בפוסטים שלך.</p>;
-  }
+  useEffect(() => {
+    fetchPosts();
+  }, [userId]);
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h2>הפוסטים שלי</h2>
+    <div>
+      <h1>Posts for {contextUser?.name || `User ${userId}`}</h1>
 
-      {loading ? (
-        <p>טוען...</p>
-      ) : posts.length === 0 ? (
-        <p>עדיין לא פרסמת פוסטים.</p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {posts.map((post) => (
-            <li key={post.id} style={{ marginBottom: "1rem", borderBottom: "1px solid #ccc", paddingBottom: "1rem" }}>
-              <h3>{post.title}</h3>
-              <p>{post.content}</p>
-              <small>נכתב בתאריך: {new Date(post.createdAt).toLocaleDateString()}</small>
-              <div style={{ marginTop: "0.5rem" }}>
-                <Link to={`/posts/${post.id}/edit`} style={{ marginRight: "1rem" }}>✏️ עריכה</Link>
-                <button onClick={() => handleDelete(post.id)}>🗑️ מחיקה</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div>
+        <h2>Add New Post</h2>
+        <input
+          type="text"
+          placeholder="Enter Post title..."
+          value={newPostTitle}
+          onChange={(e) => setNewPostTitle(e.target.value)}
+        />
+        <textarea
+          placeholder="Enter Post content..."
+          value={newPostContent}
+          onChange={(e) => setNewPostContent(e.target.value)}
+        />
+        <button onClick={handleAddPost}>Add Post</button>
+      </div>
+
+      <div>
+        {posts.map((post) => (
+          <Post
+            key={post.id}
+            post={post}
+            onPostUpdated={handlePostUpdated}
+            onPostDeleted={handlePostDeleted}
+            isSelected={post.id === selectedPostId}
+            onSelect={() => setSelectedPostId(post.id === selectedPostId ? null : post.id)}
+          />
+        ))}
+      </div>
     </div>
   );
 }

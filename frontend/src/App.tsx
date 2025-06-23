@@ -20,7 +20,7 @@ import NewPost from "./NewPost";
 import NewComment from "./NewComment";
 
 import UserProfile from "./UserProfile";
-import MyPosts from "./MyPosts";
+
 import Favorites from "./Favorites";
 import Notifications from "./Notifications";
 import Followers from "./Followers";
@@ -60,14 +60,14 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forums" element={<Forums />} />
         <Route path="/books" element={<Books />} />
-        <Route path="/books/:id" element={<Books />} />
+        <Route path="/books/:id" element={<Book />} />
         <Route path="/forums/:id" element={<Forum />} />
         <Route path="/posts/:id" element={<Post />} />
         <Route path="/search" element={<SearchPage />} />
 
         <Route path="/followers" element={ <Followers /> } />
         <Route path="/following" element={<Following />} />
-        <Route path="/users/:id/posts" element={ <MyPosts /> } />
+        
 
 
 

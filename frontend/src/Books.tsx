@@ -1,43 +1,40 @@
 import { useEffect, useState } from "react";
+import { fetchResource } from "./DBAPI";
 import { Link } from "react-router-dom";
+import "./Books.css";
 
 interface Book {
   id: number;
   title: string;
   author: string;
+  description: string;
 }
 
 export default function Books() {
   const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/books")
-      .then(res => res.json())
-      .then(data => setBooks(data))
-      .catch(err => console.error("שגיאה בטעינת ספרים:", err))
-      .finally(() => setLoading(false));
+    const loadBooks = async () => {
+      const data = await fetchResource("books");
+      if (data) setBooks(data);
+    };
+    loadBooks();
   }, []);
 
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h2>📚 רשימת ספרים</h2>
+  if (books.length === 0) return <p>לא נמצאו ספרים</p>;
 
-      {loading ? (
-        <p>טוען...</p>
-      ) : books.length === 0 ? (
-        <p>לא נמצאו ספרים.</p>
-      ) : (
-        <ul>
-          {books.map(book => (
-            <li key={book.id}>
-              <Link to={`/books/${book.id}`}>
-                {book.title} מאת {book.author}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+  return (
+    <div className="books-list">
+      <h2>📚 רשימת ספרים</h2>
+      <div className="books-container">
+        {books.map((book) => (
+          <Link to={`/books/${book.id}`} className="book-card" key={book.id}>
+            <h3>{book.title}</h3>
+            <p><strong>מחבר:</strong> {book.author}</p>
+            <p className="book-description">{book.description.slice(0, 100)}...</p>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

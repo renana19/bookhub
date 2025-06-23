@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { loginUser, newUser, user } from "../model/userModel";
 import { addUser, getUserByUsername } from "../services/userService";
 import { validateLogin, validateUser } from "../validator/userValidator";
+import { Jwt } from "jsonwebtoken";
 
 export const update = async (req: Request, res: Response): Promise<void> => {
   const userLogin: user = req.body;
@@ -59,3 +60,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+  const userId = Number(req.params.userId);
+  if (isNaN(userId)) {
+    res.status(400).send("Invalid user ID");
+    return;
+  }
+
+  //DELETE THE USER FROM THE DATABASE
+  res.status(200).json({ message: "User deleted successfully" });
+}

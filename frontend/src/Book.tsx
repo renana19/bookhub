@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { fetchResource, addResource } from "./DBAPI";
+import { userContext } from "./App";
+import "./Books.css";  // משתמש באותו CSS כמו הרשימה
 
 interface Book {
   id: number;
@@ -8,62 +11,70 @@ interface Book {
   description: string;
 }
 
-interface Post {
-  id: number;
-  title: string;
-}
-
 export default function Book() {
-  const { bookId } = useParams<{ bookId: string }>();
+  const { id } = useParams<{ id: string }>();
+  const { contextUser } = useContext(userContext);
   const [book, setBook] = useState<Book | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [myRating, setMyRating] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!bookId) return;
+    if (id) {
+      fetchResource(`books/${id}`).then(setBook);
+      fetchAverageRating();
+    }
+  }, [id]);
 
-    const fetchBookAndPosts = async () => {
-      try {
-        const bookRes = await fetch(`http://localhost:8080/books/${bookId}`);
-        const bookData = await bookRes.json();
-        setBook(bookData);
+  const fetchAverageRating = async () => {
+    const result = await fetchResource(`books/${id}/average-rating`);
+    if (result) setAverageRating(result.averageRating);
+  };
 
-        const postsRes = await fetch(`http://localhost:8080/books/${bookId}/posts`);
-        const postsData = await postsRes.json();
-        setPosts(postsData);
-      } catch (err) {
-        console.error("שגיאה בטעינת ספר או פוסטים:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleRating = async (rating: number) => {
+    if (!contextUser) {
+      alert("עליך להתחבר כדי לדרג.");
+      return;
+    }
+    const response = await addResource(`books/${id}/rate`, {
+      rating,
+      userId: contextUser.id
+    });
+    if (response) {
+      alert("תודה על הדירוג!");
+      setMyRating(rating);
+      fetchAverageRating();
+    }
+  };
 
-    fetchBookAndPosts();
-  }, [bookId]);
+  if (!book) return <p>טוען ספר...</p>;
 
   return (
-    <div style={{ padding: "2rem" }}>
-      {loading ? (
-        <p>טוען...</p>
-      ) : book ? (
-        <>
-          <h2>{book.title}</h2>
-          <p><strong>מאת:</strong> {book.author}</p>
-          <p>{book.description}</p>
+    <div className="book-card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
+      <h2>{book.title}</h2>
+      <p><strong>מחבר:</strong> {book.author}</p>
+      <p className="book-description">{book.description}</p>
 
-          <h3>📝 פוסטים על הספר</h3>
-          {posts.length === 0 ? (
-            <p>אין פוסטים על הספר הזה עדיין.</p>
-          ) : (
-            <ul>
-              {posts.map(post => (
-                <li key={post.id}>{post.title}</li>
-              ))}
-            </ul>
-          )}
-        </>
-      ) : (
-        <p>הספר לא נמצא.</p>
+      <p><strong>דירוג ממוצע:</strong> {averageRating.toFixed(2)} ⭐</p>
+
+      {contextUser && (
+        <div>
+          <p>דרג את הספר:</p>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              onClick={() => handleRating(star)}
+              style={{
+                fontSize: "1.5rem",
+                color: star <= (myRating || 0) ? "#ffc107" : "#e4e5e9",
+                background: "none",
+                border: "none",
+                cursor: "pointer"
+              }}
+            >
+              ★
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

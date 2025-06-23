@@ -17,3 +17,8 @@ export interface newUser {
 export interface user extends newUser {
   id: number;
 }
+// interface JwtPayload {
+//   id: number;
+//   username: string;
+//   role?: string;
+// }

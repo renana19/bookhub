@@ -1,5 +1,5 @@
 import pool from "../db";
-import { loginUser, newUser, user } from "../model/userModel";
+import { loginUser, newUser, user, basicUserData } from "../model/userModel";
 
 export async function getUserByUsername(
   username: string
@@ -96,5 +96,26 @@ export async function deleteUser(userId: number): Promise<boolean> {
   } catch (err) {
     console.error("Error deleting user:", err);
     return false; // Return false on error
+  }
+}
+
+export async function getBasicUserInfo(
+  userId: number
+): Promise<basicUserData | null> {
+  const sql = `
+    SELECT id, username, fullname, email, profileImageUrl, role, isVerifiedAuthor
+    FROM users WHERE id = ?
+  `;
+  const values = [userId];
+
+  try {
+    const [rows] = await pool.execute(sql, values);
+    if (Array.isArray(rows) && rows.length > 0) {
+      return rows[0] as basicUserData; // Return the first user found
+    }
+    return null; // No user found
+  } catch (err) {
+    console.error("Error fetching basic user info:", err);
+    return null;
   }
 }

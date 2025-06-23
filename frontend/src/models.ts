@@ -1,4 +1,4 @@
-export interface Comment {
+export interface CommentModel {
   id: number;
   content: string;
   createdAt: string;
@@ -23,7 +23,7 @@ export interface ForumData {
   createdBy: number;
   isRecommendation: boolean;
   created_at: string;
-    updatedAt: string;
+  updatedAt: string;
 }
 export interface UserData {
   id: number;
@@ -32,10 +32,7 @@ export interface UserData {
   email: string;
   createdAt: string;
   passwordHash: string;
-  role: 'user' | 'moderator' | 'admin';
+  role: "user" | "moderator" | "admin";
   profileImage: string;
-    isVerified: boolean;
-    
-
+  isVerified: boolean;
 }
-

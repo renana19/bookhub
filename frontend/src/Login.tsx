@@ -28,14 +28,12 @@ function Login() {
     if (response != null) {
       setMessage("ההתחברות הצליחה!");
 
-      localStorage.setItem("currentUser", JSON.stringify(response[0]));
+      const userData = response.user;
+      console.log("User data received:", userData);
 
-      console.log(
-        "User saved to localStorage:",
-        localStorage.getItem("currentUser")
-      );
-      setcontextUser(response[0]);
-      navigate("/Home");
+      // עדכון המשתמש בהקשר
+      setcontextUser(userData);
+      navigate("/userprofile/" + userData.id); // ניווט לפרופיל המשתמש
     } else {
       setMessage("שם משתמש או סיסמה לא נכונים");
     }

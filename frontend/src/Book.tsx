@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { fetchResource, addResource } from "./DBAPI";
 import { userContext } from "./App";
-import "./Books.css";  // משתמש באותו CSS כמו הרשימה
+import "./css/books.css"; // משתמש באותו CSS כמו הרשימה
 
 interface Book {
   id: number;
@@ -37,7 +37,7 @@ export default function Book() {
     }
     const response = await addResource(`books/${id}/rate`, {
       rating,
-      userId: contextUser.id
+      userId: contextUser.id,
     });
     if (response) {
       alert("תודה על הדירוג!");
@@ -49,12 +49,19 @@ export default function Book() {
   if (!book) return <p>טוען ספר...</p>;
 
   return (
-    <div className="book-card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
+    <div
+      className="book-card"
+      style={{ maxWidth: "600px", margin: "2rem auto" }}
+    >
       <h2>{book.title}</h2>
-      <p><strong>מחבר:</strong> {book.author}</p>
+      <p>
+        <strong>מחבר:</strong> {book.author}
+      </p>
       <p className="book-description">{book.description}</p>
 
-      <p><strong>דירוג ממוצע:</strong> {averageRating.toFixed(2)} ⭐</p>
+      <p>
+        <strong>דירוג ממוצע:</strong> {averageRating.toFixed(2)} ⭐
+      </p>
 
       {contextUser && (
         <div>
@@ -68,7 +75,7 @@ export default function Book() {
                 color: star <= (myRating || 0) ? "#ffc107" : "#e4e5e9",
                 background: "none",
                 border: "none",
-                cursor: "pointer"
+                cursor: "pointer",
               }}
             >
               ★

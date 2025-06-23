@@ -11,8 +11,8 @@ import Forums from "./Forums";
 import Forum from "./Forum";
 import Post from "./Post";
 import SearchPage from "./SearchPage";
-import Books from "./Books";  // עמוד ספרים 
-import Book from "./Book";  // עמוד ספר בודד
+import Books from "./Books"; // עמוד ספרים
+import Book from "./Book"; // עמוד ספר בודד
 
 // 🔐 עמודים מוגנים
 
@@ -25,8 +25,6 @@ import Favorites from "./Favorites";
 import Notifications from "./Notifications";
 import Followers from "./Followers";
 import Following from "./Following";
-
-
 
 // 🔒 רכיב הגנה
 import PrivateRoute from "./PrivateRoute";
@@ -50,8 +48,6 @@ function App() {
 
   return (
     <userContext.Provider value={{ contextUser, setcontextUser }}>
-
-
       <Navbar />
       <Routes>
         {/* 🌍 עמודים פתוחים */}
@@ -65,44 +61,59 @@ function App() {
         <Route path="/posts/:id" element={<Post />} />
         <Route path="/search" element={<SearchPage />} />
 
-        <Route path="/followers" element={ <Followers /> } />
+        <Route path="/followers" element={<Followers />} />
         <Route path="/following" element={<Following />} />
-        
-
-
 
         {/* 🔐 עמודים שמחייבים התחברות */}
 
+        <Route
+          path="/forums/:id/newPost"
+          element={
+            <PrivateRoute>
+              <NewPost />
+            </PrivateRoute>
+          }
+        />
 
-        <Route path="/forums/:id/newPost" element={
-          <PrivateRoute><NewPost /></PrivateRoute>
-        } />
+        <Route
+          path="/posts/:id/newComment"
+          element={
+            <PrivateRoute>
+              <NewComment />
+            </PrivateRoute>
+          }
+        />
 
-        <Route path="/posts/:id/newComment" element={
-          <PrivateRoute><NewComment /></PrivateRoute>
-        } />
+        <Route
+          path="/userprofile/:userId"
+          element={
+            <PrivateRoute>
+              <UserProfile />
+            </PrivateRoute>
+          }
+        />
 
+        <Route
+          path="/favorites"
+          element={
+            <PrivateRoute>
+              <Favorites />
+            </PrivateRoute>
+          }
+        />
 
-
-        <Route path="/profile" element={
-          <PrivateRoute><UserProfile /></PrivateRoute>
-        } />
-
-
-        
-        <Route path="/favorites" element={
-          <PrivateRoute><Favorites /></PrivateRoute>
-        } />
-
-        <Route path="/notifications" element={
-          <PrivateRoute><Notifications /></PrivateRoute>
-        } />
-        
+        <Route
+          path="/notifications"
+          element={
+            <PrivateRoute>
+              <Notifications />
+            </PrivateRoute>
+          }
+        />
 
         {/* 🧭 דף שגיאה */}
         <Route path="*" element={<h2>404 - הדף לא נמצא</h2>} />
       </Routes>
-
     </userContext.Provider>
   );
 }

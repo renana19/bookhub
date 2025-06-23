@@ -1,14 +1,15 @@
 const BASE_URL = "http://localhost:8080"; // בסיס ה-URL
 
 // קריאת GET גנרית
-export async function fetchResource(resource : string, queryParams = {}) {
+export async function fetchResource(resource: string, queryParams = {}) {
   try {
     let url = `${BASE_URL}/${resource}`;
     const queryString = new URLSearchParams(queryParams).toString();
     if (queryString) url += `?${queryString}`;
 
     const response = await fetch(url);
-    if (!response.ok) throw new Error(`Failed to fetch ${resource}: ${response.statusText}`);
+    if (!response.ok)
+      throw new Error(`Failed to fetch ${resource}: ${response.statusText}`);
 
     return await response.json();
   } catch (error) {
@@ -18,7 +19,7 @@ export async function fetchResource(resource : string, queryParams = {}) {
 }
 
 // הוספת רשומה חדשה (POST)
-export async function addResource( resource : string, newData: any) {
+export async function addResource(resource: string, newData: any) {
   try {
     const response = await fetch(`${BASE_URL}/${resource}`, {
       method: "POST",
@@ -28,7 +29,8 @@ export async function addResource( resource : string, newData: any) {
       body: JSON.stringify(newData),
     });
 
-    if (!response.ok) throw new Error(`Failed to add ${resource}: ${response.statusText}`);
+    if (!response.ok)
+      throw new Error(`Failed to add ${resource}: ${response.statusText}`);
 
     return await response.json();
   } catch (error) {
@@ -38,7 +40,11 @@ export async function addResource( resource : string, newData: any) {
 }
 
 // עדכון רשומה קיימת (PUT)
-export async function updateResource(resource: string, id : number, updatedData: any) {
+export async function updateResource(
+  resource: string,
+  id: number,
+  updatedData: any
+) {
   try {
     console.log("Sending PUT request to:", `${BASE_URL}/${resource}/${id}`);
     console.log("Data to update:", updatedData);
@@ -55,7 +61,7 @@ export async function updateResource(resource: string, id : number, updatedData:
       throw new Error(`Failed to update ${resource}: ${response.statusText}`);
     }
 
-   const updatedPhoto = await response.json();
+    const updatedPhoto = await response.json();
     console.log("Updated photo:", updatedPhoto); // הדפסת התמונה המעודכנת
     return updatedPhoto;
   } catch (error) {
@@ -71,7 +77,8 @@ export async function deleteResource(resource: string, id: number) {
       method: "DELETE",
     });
 
-    if (!response.ok) throw new Error(`Failed to delete ${resource}: ${response.statusText}`);
+    if (!response.ok)
+      throw new Error(`Failed to delete ${resource}: ${response.statusText}`);
 
     return true;
   } catch (error) {

@@ -1,8 +1,34 @@
 import { Request, Response } from "express";
 import { loginUser, newUser, user } from "../model/userModel";
-import { addUser, getUserByUsername } from "../services/userService";
+import {
+  addUser,
+  getBasicUserInfo,
+  getUserByUsername,
+} from "../services/userService";
 import { validateLogin, validateUser } from "../validator/userValidator";
-import { Jwt } from "jsonwebtoken";
+
+export const getBasicUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const userId = Number(req.params.userId);
+  console.log("Fetching basic user info for ID:", req.params.userId);
+  if (isNaN(userId)) {
+    res.status(400).send("Invalid user ID");
+    return;
+  }
+  try {
+    const user = await getBasicUserInfo(userId);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export const update = async (req: Request, res: Response): Promise<void> => {
   const userLogin: user = req.body;
@@ -60,14 +86,3 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-export const deleteUser = async (req: Request, res: Response): Promise<void> => {
-  const userId = Number(req.params.userId);
-  if (isNaN(userId)) {
-    res.status(400).send("Invalid user ID");
-    return;
-  }
-
-  //DELETE THE USER FROM THE DATABASE
-  res.status(200).json({ message: "User deleted successfully" });
-}

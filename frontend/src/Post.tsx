@@ -1,10 +1,14 @@
 import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { userContext } from "./App";
-import { fetchResource, addResource, updateResource, deleteResource } from "./DBAPI";
+import {
+  fetchResource,
+  addResource,
+  updateResource,
+  deleteResource,
+} from "./DBAPI";
 import Comment from "./Comments";
-import { PostData } from "./models";
-
+import type { CommentModel, PostData } from "./models";
 
 interface PostProps {
   post: PostData;
@@ -12,13 +16,17 @@ interface PostProps {
   onPostDeleted: (id: number) => void;
 }
 
-export default function Post({ post, onPostUpdated, onPostDeleted }: PostProps) {
+export default function Post({
+  post,
+  onPostUpdated,
+  onPostDeleted,
+}: PostProps) {
   const { contextUser } = useContext(userContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(post.title);
   const [editedContent, setEditedContent] = useState(post.content);
 
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<CommentModel[]>([]);
   const [visibleCount, setVisibleCount] = useState(10);
   const [newComment, setNewComment] = useState("");
 
@@ -32,7 +40,10 @@ export default function Post({ post, onPostUpdated, onPostDeleted }: PostProps) 
   };
 
   const handleUpdate = async () => {
-    await onPostUpdated(post.id, { title: editedTitle, content: editedContent });
+    await onPostUpdated(post.id, {
+      title: editedTitle,
+      content: editedContent,
+    });
     setIsEditing(false);
   };
 
@@ -62,7 +73,9 @@ export default function Post({ post, onPostUpdated, onPostDeleted }: PostProps) 
   };
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: "1rem", margin: "1rem 0" }}>
+    <div
+      style={{ border: "1px solid #ccc", padding: "1rem", margin: "1rem 0" }}
+    >
       <div>
         <strong>
           <Link to={`/profile/${post.userId}`}>👤 משתמש {post.userId}</Link>
@@ -96,7 +109,7 @@ export default function Post({ post, onPostUpdated, onPostDeleted }: PostProps) 
 
       <div>
         <h4>תגובות</h4>
-        {comments.slice(0, visibleCount).map((c) => (
+        {comments.slice(0, visibleCount).map((c: CommentModel) => (
           <Comment key={c.id} comment={c} />
         ))}
         {visibleCount < comments.length && (

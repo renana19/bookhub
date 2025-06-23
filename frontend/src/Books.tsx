@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchResource } from "./DBAPI";
 import { Link } from "react-router-dom";
-import "./Books.css";
+import "./css/Books.css";
 
 interface Book {
   id: number;
@@ -30,8 +30,12 @@ export default function Books() {
         {books.map((book) => (
           <Link to={`/books/${book.id}`} className="book-card" key={book.id}>
             <h3>{book.title}</h3>
-            <p><strong>מחבר:</strong> {book.author}</p>
-            <p className="book-description">{book.description.slice(0, 100)}...</p>
+            <p>
+              <strong>מחבר:</strong> {book.author}
+            </p>
+            <p className="book-description">
+              {book.description.slice(0, 100)}...
+            </p>
           </Link>
         ))}
       </div>

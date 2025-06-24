@@ -1,5 +1,5 @@
 To export Database:
-mysqldump -u root -proot bookhub > bookhub.sql
+mysqldump --default-character-set=utf8mb4 -u root -proot bookhub > bookhub.sql
 
 Import:
-mysql -u root -proot bookhub < bookhub.sql
+mysql --default-character-set=utf8mb4 -u root -proot bookhub < bookhub.sql

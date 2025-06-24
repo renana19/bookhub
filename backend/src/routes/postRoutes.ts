@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  getAllPostsController  as getAllPosts,
+  getAllPostsController as getAllPosts,
   getPostsByUserController as getPostsByUser,
   getPostByIdController as getPostById,
   createPostController as createPost,
@@ -12,7 +12,7 @@ import authenticateToken from "../services/authMiddleware";
 
 const router = express.Router();
 
-router.get("/" , getAllPosts);
+router.get("/", getAllPosts);
 router.get("/user/:userId", getPostsByUser);
 router.get("/:postId", getPostById);
 router.get("/:postId/likes", getUsersWhoLikedPost);

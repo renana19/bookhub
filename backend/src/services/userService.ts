@@ -21,7 +21,7 @@ export async function getUserByUsername(
 export async function addUser(user: newUser): Promise<user | null> {
   const sql = `
     INSERT INTO users (
-      username, fullname, email, password, address, profileImageUrl, role, isVerifiedAuthor
+      username, fullname, email, passwordHash, address, profileImageUrl, role, isVerifiedAuthor
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
@@ -29,7 +29,7 @@ export async function addUser(user: newUser): Promise<user | null> {
     user.username,
     user.fullname,
     user.email,
-    user.password,
+    user.passwordHash,
     user.address ?? null,
     user.profileImageUrl ?? null,
     user.role ?? "user",
@@ -54,7 +54,7 @@ export async function updateUser(
       username = COALESCE(?, username),
       fullname = COALESCE(?, fullname),
       email = COALESCE(?, email),
-      password = COALESCE(?, password),
+      passwordHash = COALESCE(?, passwordHash),
       address = COALESCE(?, address),
       profileImageUrl = COALESCE(?, profileImageUrl),
       role = COALESCE(?, role),
@@ -66,7 +66,7 @@ export async function updateUser(
     updatedUser.username,
     updatedUser.fullname,
     updatedUser.email,
-    updatedUser.password,
+    updatedUser.passwordHash,
     updatedUser.address,
     updatedUser.profileImageUrl,
     updatedUser.role,

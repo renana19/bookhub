@@ -7,7 +7,7 @@ export interface newUser {
   username: string;
   fullname: string;
   email: string;
-  password: string;
+  passwordHash: string;
   address?: string;
   profileImageUrl?: string;
   role?: "admin" | "author" | "user";

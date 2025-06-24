@@ -51,10 +51,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   try {
     const user = await getUserByUsername(userLogin.username);
-    if (!user || userLogin.password !== user.password) {
+    if (!user || userLogin.password !== user.passwordHash) {
       res.status(404).json({ message: "User not found" });
       return;
-    } else if (userLogin.password === user.password) {
+    } else if (userLogin.password === user.passwordHash) {
       res.status(200).json({ message: "Login successful", user });
       return;
     }

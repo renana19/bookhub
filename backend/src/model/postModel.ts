@@ -1,5 +1,3 @@
-
-
 export interface newPost {
   title: string;
   content: string;
@@ -8,6 +6,5 @@ export interface newPost {
   createdAt: Date;
 }
 export interface post extends newPost {
-    id: number;
-    
+  id: number;
 }

@@ -3,11 +3,19 @@ import { useParams } from "react-router-dom";
 import { userContext } from "./App";
 import { Link } from "react-router-dom";
 
+type Post = {
+  id: number;
+  title: string;
+  content: string;
+  forumId: number;
+  userId: number;
+  createdAt: string;
+};
+
 export default function UserProfile() {
   const { userId } = useParams<{ userId: string }>();
   const { contextUser } = useContext(userContext);
   const [userInfo, setUserInfo] = useState<any>(contextUser);
-  type Post = { id: number; title: string; content: string };
   const [posts, setPosts] = useState<Post[]>([]);
 
   console.log("User ID:", userId);
@@ -23,19 +31,21 @@ export default function UserProfile() {
       }
     };
 
-    // const fetchUserPosts = async () => {
-    //   try {
-    //     const response = await fetch(`http://localhost:8080/users/${userId}/posts`);
-    //     if (!response.ok) throw new Error("Network response was not ok");
-    //     const data = await response.json();
-    //     setPosts(data);
-    //   } catch (error) {
-    //     console.error("Error fetching user posts:", error);
-    //   }
-    // };
+    const fetchUserPosts = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/posts/user/${userId}`
+        );
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error("Error fetching user posts:", error);
+      }
+    };
 
     fetchUserInfo();
-    //fetchUserPosts();
+    fetchUserPosts();
   }, [userId]);
 
   const isOwnProfile = contextUser && contextUser.id === Number(userId);
@@ -67,7 +77,9 @@ export default function UserProfile() {
       <ul>
         {posts.map((post) => (
           <li key={post.id}>
-            <strong>{post.title}</strong>
+            <Link to={`/posts/${post.id}`}>
+              <strong>{post.title}</strong>
+            </Link>
             <p>{post.content}</p>
             {isOwnProfile && (
               <>

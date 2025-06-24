@@ -1,8 +1,9 @@
 export interface CommentModel {
   id: number;
-  content: string;
-  createdAt: string;
   userId: number;
+  content: string;
+  createdAt: Date;
+  postId: number;
 }
 
 export interface PostData {

@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { userContext } from "./App";
 import {
   fetchResource,
@@ -16,11 +16,8 @@ interface PostProps {
   onPostDeleted: (id: number) => void;
 }
 
-export default function Post({
-  post,
-  onPostUpdated,
-  onPostDeleted,
-}: PostProps) {
+export default function Post() {
+  const postId = useParams<{ postId: string }>();
   const { contextUser } = useContext(userContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(post.title);
@@ -38,7 +35,7 @@ export default function Post({
   }, [post.id]);
 
   const loadComments = async () => {
-    const data = await fetchResource(`posts/${post.id}/comments`);
+    const data = await fetchResource(`comments/${post.id}`);
     if (data) setComments(data);
   };
 
@@ -118,8 +115,11 @@ export default function Post({
         </>
       )}
 
- <div style={{ marginTop: "0.5rem" }}>
-        <button onClick={loadLikes} style={{ cursor: "pointer", background: "none", border: "none" }}>
+      <div style={{ marginTop: "0.5rem" }}>
+        <button
+          onClick={loadLikes}
+          style={{ cursor: "pointer", background: "none", border: "none" }}
+        >
           ❤️ לייקים
         </button>
         {showLikes && (
@@ -134,7 +134,7 @@ export default function Post({
               boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
               zIndex: 10,
               maxHeight: "200px",
-              overflowY: "auto"
+              overflowY: "auto",
             }}
           >
             {likedUsers.length === 0 ? (

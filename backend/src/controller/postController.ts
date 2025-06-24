@@ -7,7 +7,7 @@ import {
   getPostById,
   getPostsByUser,
   updatePost,
-  getUsersWhoLikedPost
+  getUsersWhoLikedPost,
 } from "../services/postService";
 import { loginUser, newUser, user } from "../model/userModel";
 import { newPost, post } from "../model/postModel";
@@ -117,12 +117,15 @@ export const deletePostController = async (req: Request, res: Response) => {
   res.send("Post deleted");
 };
 
-export const getUsersWhoLikedPostController = async (req: Request, res: Response) => {
+export const getUsersWhoLikedPostController = async (
+  req: Request,
+  res: Response
+) => {
   const postId = Number(req.params.postId);
   if (isNaN(postId)) {
-     res.status(400).send("Invalid post ID");
-     return
-}
+    res.status(400).send("Invalid post ID");
+    return;
+  }
   try {
     const users = await getUsersWhoLikedPost(postId);
     res.json(users);
@@ -131,3 +134,21 @@ export const getUsersWhoLikedPostController = async (req: Request, res: Response
     res.status(500).send("Server error");
   }
 };
+
+// export const getUserPostsController = async (
+//   req: Request,
+//   res: Response
+// ): Promise<void> => {
+//   const userId = Number(req.params.userId);
+//   if (isNaN(userId)) {
+//     res.status(400).send("Invalid user ID");
+//     return;
+//   }
+//   try {
+//     const posts = await getPostsByUser(userId);
+//     res.status(200).json(posts);
+//   } catch (error) {
+//     console.error("Error fetching user posts:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };

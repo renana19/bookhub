@@ -4,6 +4,8 @@ import userRoutes from "./routes/userRoute";
 import { login } from "./controller/userController";
 import postRoutes from "./routes/postRoutes";
 import bookRoutes from "./routes/bookRoute";
+import commentsRoute from "./routes/commentRoute";
+import forumRoutes from "./routes/forumRoute";
 
 const app = express();
 app.use(cors());
@@ -23,9 +25,9 @@ app.use("/books", bookRoutes);
 app.use("/posts", postRoutes);
 
 // app.use("/notifications", userRoutes);
-// app.use("/comments", userRoutes);
+app.use("/comments", commentsRoute);
 // app.use("/follows", userRoutes);
-// app.use("/forums", userRoutes);
+app.use("/forums", forumRoutes);
 
 // app.use("/favorites", userRoutes);
 // app.use("/search", userRoutes);

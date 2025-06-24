@@ -8,3 +8,8 @@ export interface newPost {
 export interface post extends newPost {
   id: number;
 }
+
+export interface userLike {
+  id: number;
+  username: string;
+}

@@ -32,3 +32,8 @@ export interface basicUserData {
 //   username: string;
 //   role?: string;
 // }
+
+export interface userLike {
+  id: number;
+  username: string;
+}

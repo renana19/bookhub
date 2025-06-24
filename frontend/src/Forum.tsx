@@ -3,6 +3,7 @@ import { fetchResource, addResource, updateResource, deleteResource } from "./DB
 import { useState, useEffect, useContext } from "react";
 import Post from "./Post";
 import { userContext } from "./App";
+import type { PostData } from "./models";
 
 function Forum() {
     const { forumId } = useParams();
@@ -10,7 +11,7 @@ function Forum() {
     const [posts, setPosts] = useState([]);
     const [newPostTitle, setNewPostTitle] = useState("");
     const [newPostContent, setNewPostContent] = useState("");
-    const [selectedPostId, setSelectedPostId] = useState(null);
+    const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
     const { contextUser } = useContext(userContext);
 
     const fetchForumData = async () => {
@@ -60,7 +61,7 @@ function Forum() {
         }
     };
 
-    const handlePostUpdated = async (id, updatedData) => {
+    const handlePostUpdated = async (id:number, updatedData:PostData) => {
         try {
             await updateResource("posts", id, updatedData);
             fetchPosts();
@@ -69,7 +70,7 @@ function Forum() {
         }
     };
 
-    const handlePostDeleted = async (id) => {
+    const handlePostDeleted = async (id:number) => {
         try {
             await deleteResource("posts", id);
             fetchPosts();
@@ -78,7 +79,7 @@ function Forum() {
         }
     };
 
-    const handleSelectPost = (id) => {
+    const handleSelectPost = (id:number) => {
         setSelectedPostId(prev => (prev === id ? null : id));
     };
 

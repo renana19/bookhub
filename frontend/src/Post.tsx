@@ -30,6 +30,9 @@ export default function Post({
   const [visibleCount, setVisibleCount] = useState(10);
   const [newComment, setNewComment] = useState("");
 
+  const [likedUsers, setLikedUsers] = useState<User[]>([]);
+  const [showLikes, setShowLikes] = useState(false);
+
   useEffect(() => {
     loadComments();
   }, [post.id]);
@@ -37,6 +40,14 @@ export default function Post({
   const loadComments = async () => {
     const data = await fetchResource(`posts/${post.id}/comments`);
     if (data) setComments(data);
+  };
+
+  const loadLikes = async () => {
+    if (!showLikes) {
+      const users = await fetchResource(`posts/${post.id}/likes`);
+      if (users) setLikedUsers(users);
+    }
+    setShowLikes(!showLikes);
   };
 
   const handleUpdate = async () => {
@@ -107,6 +118,40 @@ export default function Post({
         </>
       )}
 
+ <div style={{ marginTop: "0.5rem" }}>
+        <button onClick={loadLikes} style={{ cursor: "pointer", background: "none", border: "none" }}>
+          ❤️ לייקים
+        </button>
+        {showLikes && (
+          <div
+            style={{
+              position: "absolute",
+              top: "2rem",
+              right: "1rem",
+              background: "#fff",
+              border: "1px solid #ccc",
+              padding: "0.5rem",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+              zIndex: 10,
+              maxHeight: "200px",
+              overflowY: "auto"
+            }}
+          >
+            {likedUsers.length === 0 ? (
+              <p>אין לייקים עדיין</p>
+            ) : (
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {likedUsers.map((user) => (
+                  <li key={user.id}>
+                    <Link to={`/profile/${user.id}`}>{user.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
+
       <div>
         <h4>תגובות</h4>
         {comments.slice(0, visibleCount).map((c: CommentModel) => (
@@ -128,3 +173,7 @@ export default function Post({
     </div>
   );
 }
+
+//קריאה לרשימת משתמשים שעשו לייק לפוסט
+//const users = await fetchResource(`post/${postId}/likes`);
+//console.log(users);

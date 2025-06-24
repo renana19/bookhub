@@ -7,6 +7,7 @@ import {
   getPostById,
   getPostsByUser,
   updatePost,
+  getUsersWhoLikedPost
 } from "../services/postService";
 import { loginUser, newUser, user } from "../model/userModel";
 import { newPost, post } from "../model/postModel";
@@ -114,4 +115,19 @@ export const deletePostController = async (req: Request, res: Response) => {
 
   await deletePost(postId);
   res.send("Post deleted");
+};
+
+export const getUsersWhoLikedPostController = async (req: Request, res: Response) => {
+  const postId = Number(req.params.postId);
+  if (isNaN(postId)) {
+     res.status(400).send("Invalid post ID");
+     return
+}
+  try {
+    const users = await getUsersWhoLikedPost(postId);
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 };

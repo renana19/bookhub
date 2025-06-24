@@ -72,3 +72,14 @@ export const deletePost = async (postId: number): Promise<boolean> => {
     return false; // Return false on error
   }
 };
+
+export const getUsersWhoLikedPost = async (postId: number) => {
+  const [rows] = await pool.query(
+    `SELECT u.id, u.name, u.email
+     FROM users u
+     JOIN likes l ON u.id = l.userId
+     WHERE l.postId = ?`,
+    [postId]
+  );
+  return rows;
+};

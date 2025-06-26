@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import "./css/Login.css";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchResource } from './DBAPI';
 
 function Register() {
@@ -10,6 +10,7 @@ function Register() {
     const varifyPasswordRef = useRef<HTMLInputElement>(null); // הגדרת useRef עבור סיסמה
     const [redirect, setRedirect] = useState(false);
     const [message, setMessage] = useState("");
+     const navigate = useNavigate();  // הכיני את הפונקציה לניווט
 
 const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // מונע רענון של הדף בעת שליחת הטופס
@@ -28,10 +29,11 @@ const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         }
 
         //http://localhost:3000/ וכן רק נקרא לובגנרית נממש את החיפוש על
-        const response = await fetchResource("users",{username})
+        const response = await fetchResource("users/username",{username})
         console.log(response);
-        if (response.length!=0) {
+        if (!response) {
             setMessage("user exists please log in");
+            navigate("/login");  // פה את מפנה לעמוד הלוגין
         }
         else {
             setMessage("Great! go complete registration");
@@ -48,7 +50,7 @@ return (
                     name="username"
                     ref={usernameRef}
                     required
-                />
+                />  
 
                 <input
                     type="password"
@@ -67,7 +69,15 @@ return (
 
                 <button type="submit">Register</button>
                 <p>{message}</p>
+
+                
             </form>
+             {redirect && (
+                <Link to="/FinishRegistration" state={{ username: usernameRef.current?.value, password: passwordRef.current?.value }}>
+                    Go to Finish Registration
+                </Link>
+
+            )}
         </div>
 )
 }

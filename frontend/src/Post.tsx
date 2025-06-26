@@ -8,59 +8,89 @@ import {
   deleteResource,
 } from "./DBAPI";
 import Comment from "./Comments";
-import type { CommentModel, PostData } from "./models";
+import type { CommentModel, PostData, UserData } from "./models";
+import { useNavigate } from "react-router-dom";
 
-interface PostProps {
-  post: PostData;
-  onPostUpdated: (id: number, data: Partial<PostData>) => void;
-  onPostDeleted: (id: number) => void;
-}
 
 export default function Post() {
-  const postId = useParams<{ postId: string }>();
+  const { postId } = useParams<{ postId: string }>();
   const { contextUser } = useContext(userContext);
+
+  const [post, setPost] = useState<PostData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(post.title);
-  const [editedContent, setEditedContent] = useState(post.content);
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedContent, setEditedContent] = useState("");
 
   const [comments, setComments] = useState<CommentModel[]>([]);
   const [visibleCount, setVisibleCount] = useState(10);
   const [newComment, setNewComment] = useState("");
 
-  const [likedUsers, setLikedUsers] = useState<User[]>([]);
+  const [likedUsers, setLikedUsers] = useState<UserData[]>([]);
   const [showLikes, setShowLikes] = useState(false);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
-    loadComments();
-  }, [post.id]);
+    if (postId) {
+      loadPost();
+      // loadComments();
+    }
+  }, [postId]);
 
-  const loadComments = async () => {
-    const data = await fetchResource(`comments/${post.id}`);
-    if (data) setComments(data);
-  };
+  const loadPost = async () => {
+    const data = await fetchResource(`posts/${postId}`);
+    console.log("DATA FROM SERVER:", data);
+    if (data) {
+      setPost(data.post);
+      setEditedTitle(data.post.title);
+      setEditedContent(data.post.content);
+      setComments(data.comments || []);
+
+    };
+  }
+  // const loadComments = async () => {
+  //   const data = await fetchResource(`comments/${postId}`);
+  //   if (data) setComments(data);
+  // };
 
   const loadLikes = async () => {
     if (!showLikes) {
-      const users = await fetchResource(`posts/${post.id}/likes`);
+      const users = await fetchResource(`posts/${postId}/likes`);
       if (users) setLikedUsers(users);
     }
     setShowLikes(!showLikes);
   };
 
   const handleUpdate = async () => {
-    await onPostUpdated(post.id, {
+    if (!post) return;
+    const updated = await updateResource("posts", post.id, {
       title: editedTitle,
       content: editedContent,
     });
-    setIsEditing(false);
+    console.log("UPDATED FROM SERVER:", updated);
+
+    if (updated) {
+      const updatedPost = updated.post || updated; // תמיכה בשני המקרים
+      setPost(updatedPost);
+      setIsEditing(false);
+    } else {
+      alert("עדכון הפוסט נכשל");
+    }
+
   };
 
   const handleDelete = async () => {
-    await onPostDeleted(post.id);
+    if (!post) return;
+    const success = await deleteResource("posts", post.id);
+    if (success) {
+      // כאן את יכולה לנווט חזרה לפורום למשל
+      alert("הפוסט נמחק");
+    }
+    navigate(`/forums/${post.forumId}`);  // מעביר לעמוד הפורום של הפוסט שנמחק
   };
 
   const handleAddComment = async () => {
-    if (!newComment.trim()) {
+    if (!newComment.trim() || !post) {
       alert("הכנס תוכן לתגובה");
       return;
     }
@@ -80,15 +110,16 @@ export default function Post() {
     setVisibleCount((prev) => prev + 10);
   };
 
+  if (!post) return <p>טוען פוסט...</p>;
+
   return (
-    <div
-      style={{ border: "1px solid #ccc", padding: "1rem", margin: "1rem 0" }}
-    >
+    <div style={{ border: "1px solid #ccc", padding: "1rem", margin: "1rem 0" }}>
       <div>
         <strong>
           <Link to={`/profile/${post.userId}`}>👤 משתמש {post.userId}</Link>
         </strong>
       </div>
+
       {isEditing ? (
         <>
           <input
@@ -154,7 +185,7 @@ export default function Post() {
 
       <div>
         <h4>תגובות</h4>
-        {comments.slice(0, visibleCount).map((c: CommentModel) => (
+        {comments.slice(0, visibleCount).map((c) => (
           <Comment key={c.id} comment={c} />
         ))}
         {visibleCount < comments.length && (
@@ -173,7 +204,3 @@ export default function Post() {
     </div>
   );
 }
-
-//קריאה לרשימת משתמשים שעשו לייק לפוסט
-//const users = await fetchResource(`post/${postId}/likes`);
-//console.log(users);

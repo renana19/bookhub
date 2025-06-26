@@ -1,9 +1,16 @@
 import express from "express";
-//import { rateBookController as rateBook , getAverageRatingController as  getAverageRating } from "../controller/bookController";
+import {
+  getAllBooksController,
+  getBookByIdController,
+  addRatingController,
+  getAverageRatingController
+} from "../controller/bookController";
 
 const router = express.Router();
 
-// router.post("/:bookId/rate",rateBook );
-// router.get("/:bookId/average-rating", getAverageRating);
+router.get("/", getAllBooksController);
+router.get("/:id", getBookByIdController);
+router.post("/:id/rate", addRatingController);
+router.get("/:id/average-rating", getAverageRatingController);
 
 export default router;

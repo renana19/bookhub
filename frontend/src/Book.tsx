@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { fetchResource, addResource } from "./DBAPI";
 import { userContext } from "./App";
-import "./css/books.css"; // משתמש באותו CSS כמו הרשימה
+import "./css/books.css";
 
 interface Book {
   id: number;
@@ -15,19 +15,29 @@ export default function Book() {
   const { id } = useParams<{ id: string }>();
   const { contextUser } = useContext(userContext);
   const [book, setBook] = useState<Book | null>(null);
-  const [averageRating, setAverageRating] = useState<number>(0);
+  const [averageRating, setAverageRating] = useState<number | null>(null);
   const [myRating, setMyRating] = useState<number | null>(null);
 
   useEffect(() => {
     if (id) {
-      fetchResource(`books/${id}`).then(setBook);
-      fetchAverageRating();
+      loadBookAndRating();
     }
   }, [id]);
+
+  const loadBookAndRating = async () => {
+    const bookData = await fetchResource(`books/${id}`);
+    if (bookData) setBook(bookData);
+     const userRatingData = await fetchResource(`books/${id}/rating`, { userId: contextUser.id });
+    setMyRating(userRatingData?.rating ?? null);
+ 
+
+    await fetchAverageRating();
+  };
 
   const fetchAverageRating = async () => {
     const result = await fetchResource(`books/${id}/average-rating`);
     if (result) setAverageRating(result.averageRating);
+
   };
 
   const handleRating = async (rating: number) => {
@@ -42,26 +52,27 @@ export default function Book() {
     if (response) {
       alert("תודה על הדירוג!");
       setMyRating(rating);
-      fetchAverageRating();
+      await fetchAverageRating();
     }
   };
 
   if (!book) return <p>טוען ספר...</p>;
 
   return (
-    <div
-      className="book-card"
-      style={{ maxWidth: "600px", margin: "2rem auto" }}
-    >
+    <div className="book-card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
       <h2>{book.title}</h2>
       <p>
         <strong>מחבר:</strong> {book.author}
       </p>
       <p className="book-description">{book.description}</p>
 
-      <p>
-        <strong>דירוג ממוצע:</strong> {averageRating.toFixed(2)} ⭐
-      </p>
+     <p>
+  דירוג ממוצע:{" "}
+  {typeof averageRating === "number"
+    ? averageRating.toFixed(2)
+    : "אין דירוגים עדיין"}
+</p>
+
 
       {contextUser && (
         <div>

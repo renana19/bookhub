@@ -9,7 +9,7 @@ interface UserPayload {
   username: string;
   fullname: string;
   email: string;
-  password: string;
+  passwordHash: string;
 }
 
 export function authenticateToken(req: Request, res: Response, next: NextFunction) {

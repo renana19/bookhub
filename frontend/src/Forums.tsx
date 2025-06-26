@@ -11,6 +11,10 @@ interface Forum {
 export default function Forums() {
   const [forums, setForums] = useState<Forum[]>([]);
   const [loading, setLoading] = useState(true);
+  
+
+
+
 
   useEffect(() => {
     const loadForums = async () => {
@@ -38,6 +42,7 @@ export default function Forums() {
             </li>
           ))}
         </ul>
+        
       ) : (
         <p>לא נמצאו פורומים.</p>
       )}

@@ -81,12 +81,7 @@ export default function UserProfile() {
               <strong>{post.title}</strong>
             </Link>
             <p>{post.content}</p>
-            {isOwnProfile && (
-              <>
-                <button>✏️ עדכן</button>
-                <button>🗑️ מחק</button>
-              </>
-            )}
+           
           </li>
         ))}
       </ul>

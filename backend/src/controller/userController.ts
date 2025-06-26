@@ -86,3 +86,27 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getUserByUsernameController = async (
+  req: Request,   
+  res: Response
+): Promise<void> => {         
+  const username = req.query.username;
+  if (!username || typeof username !== "string") {
+    res.status(400).send("Username is required and must be a string");
+    return;
+  }
+
+  try {
+    const user = await getUserByUsername(username);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching user by username:", error);
+console.error("Full error:", JSON.stringify(error, null, 2));
+    res.status(500).json({ message: "Internal server error" });
+  }
+}  

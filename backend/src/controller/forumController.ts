@@ -1,16 +1,41 @@
 import { Request, Response } from "express";
+import { getForumsSortedByPostCount , getForumWithPostsById } from "../services/forumService";
 
+export const getPopularForumsController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const forums = await getForumsSortedByPostCount();
+    res.json(forums);
+  } catch (err) {
 
+    console.error("Error getting popular forums:", err);
+console.error("Full error:", JSON.stringify(err, null, 2));
 
-export const getPopularForums = async (req: Request, res: Response) => {
-  // לדוגמה - ממסד נתונים אמיתי
-  // const forums = await ForumModel.getPopular();
-  
-  // דמו:
-  const forums = [
-    { id: 1, title: "פורום ספרות קלאסית", post_count: 12 },
-    { id: 2, title: "פורום מתח", post_count: 9 }
-  ];
-  
-  res.json(forums);
+    res.status(500).json({ error: "Failed to fetch forums" });
+  }
 };
+
+
+
+export const getForumByIdController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const forumId = Number(req.params.id);
+    if (isNaN(forumId)) {
+      res.status(400).json({ error: "Invalid forum ID" });
+      return;
+    }
+
+    const { forum, posts } = await getForumWithPostsById(forumId);
+
+    if (!forum) {
+      res.status(404).json({ error: "Forum not found" });
+      return;
+    }
+
+    res.json({ forum, posts });
+  } catch (err) {
+    console.error("Error fetching forum with posts:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+

@@ -1,6 +1,7 @@
 import pool from "../db";
 import { newPost, post } from "../model/postModel";
 import { userLike } from "../model/userModel";
+import { comment } from "../model/commentModel";
 
 export const getAllPosts = async (): Promise<post[]> => {
   const [rows] = await pool.query("SELECT * FROM posts");
@@ -14,9 +15,18 @@ export const getPostsByUser = async (userId: number): Promise<post[]> => {
   return rows as post[];
 };
 
-export const getPostById = async (postId: number): Promise<post | null> => {
-  const [rows] = await pool.query("SELECT * FROM posts WHERE id = ?", [postId]);
-  return (rows as post[])[0] || null;
+export const getPostWithCommentsById = async (postId: number): Promise<{ post: post | null, comments: comment[] }> => {
+  // שליפת הפוסט
+  const [postRows] = await pool.query("SELECT * FROM posts WHERE id = ?", [postId]);
+  const post = (postRows as post[])[0] || null;
+
+  if (!post) {
+    return { post: null, comments: [] };
+  }
+
+  // שליפת התגובות של הפוסט
+  const [commentRows] = await pool.query("SELECT * FROM comments WHERE postId = ?", [postId]);
+  return { post, comments: commentRows as comment[] };
 };
 
 export async function createPost(newPostData: newPost): Promise<post | null> {
@@ -40,39 +50,28 @@ export async function createPost(newPostData: newPost): Promise<post | null> {
   }
 }
 
-export const updatePost = async (
+export const updatePostById = async (
   postId: number,
-  updatedPost: Partial<post>
-): Promise<post | null> => {
-  const sql = `UPDATE posts SET 
-   title = COALESCE(?, title), content = COALESCE(?, content)
-    WHERE id = ?
-  `;
-  const values = [updatedPost.title, updatedPost.content];
+  data: { title: string; content: string }
+) => {
+  const [result]: any = await pool.query(
+    "UPDATE posts SET title = ?, content = ? WHERE id = ?",
+    [data.title, data.content, postId]
+  );
 
-  try {
-    const [result] = await pool.execute(sql, values);
-    if ((result as any).affectedRows > 0) {
-      return { title: updatedPost.title, content: updatedPost.content } as post; // Return the updated post object
-    }
-    return null; // No user found or no changes made
-  } catch (err) {
-    console.error("Error updating post:", err);
+  if (result.affectedRows === 0) {
     return null;
   }
+
+  const [rows] = await pool.query("SELECT * FROM posts WHERE id = ?", [postId]);
+  return (rows as any[])[0] || null;
 };
 
-export const deletePost = async (postId: number): Promise<boolean> => {
-  const sql = "DELETE FROM posts WHERE id = ?";
-  const values = [postId];
 
-  try {
-    const [result] = await pool.execute(sql, values);
-    return (result as any).affectedRows > 0; // Return true if a post was deleted
-  } catch (err) {
-    console.error("Error deleting post:", err);
-    return false; // Return false on error
-  }
+
+export const deletePostById = async (postId: number): Promise<boolean> => {
+  const [result]: any = await pool.query("DELETE FROM posts WHERE id = ?", [postId]);
+  return result.affectedRows > 0;
 };
 
 export const getUsersWhoLikedPost = async (postId: number) => {

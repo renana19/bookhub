@@ -55,10 +55,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forums" element={<Forums />} />
+         <Route path="/forums/:id" element={<Forum />} />
         <Route path="/books" element={<Books />} />
         <Route path="/books/:id" element={<Book />} />
-        <Route path="/forums/:id" element={<Forum />} />
-        <Route path="/posts/:id" element={<Post />} />
+       
+        <Route path="/posts/:postId" element={<Post />} />
         <Route path="/search" element={<SearchPage />} />
 
         <Route path="/followers" element={<Followers />} />

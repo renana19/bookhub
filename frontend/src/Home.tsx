@@ -15,10 +15,21 @@ export default function Home() {
 
   useEffect(() => {
     // קריאת פורומים מהשרת
-    fetch("http://localhost:8080/forums")
-      .then((res) => res.json())
-      .then((data) => setForums(data))
-      .catch((err) => console.error("שגיאה בטעינת הפורומים:", err));
+       const fetchUserForums = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/forums/popular`
+        );
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+        setForums(data);
+      } catch (error) {
+        console.error("Error fetching user posts:", error);
+      }
+    };
+
+     fetchUserForums();
+
   }, []);
 
   return (

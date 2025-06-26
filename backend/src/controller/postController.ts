@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 
 import {
   createPost,
-  deletePost,
+  deletePostById ,
   getAllPosts,
-  getPostById,
+  getPostWithCommentsById,
   getPostsByUser,
-  updatePost,
+  updatePostById,
   getUsersWhoLikedPost,
 } from "../services/postService";
 import { loginUser, newUser, user } from "../model/userModel";
@@ -44,13 +44,29 @@ export const getPostsByUserController = async (
   res.json(posts);
 };
 
-export const getPostByIdController = async (req: Request, res: Response) => {
-  const postId = Number(req.params.postId);
-  if (isNaN(postId)) res.status(400).send("Invalid post ID");
-  const post = await getPostById(postId);
-  if (post) res.json(post);
-  else res.status(404).send("Post not found");
+
+export const getPostByIdController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const postId = Number(req.params.id);
+    if (isNaN(postId)) {
+      res.status(400).json({ error: "Invalid post ID" });
+      return;
+    }
+
+    const { post, comments } = await getPostWithCommentsById(postId);
+
+    if (!post) {
+      res.status(404).json({ error: "Post not found" });
+      return;
+    }
+
+    res.json({ post, comments });
+  } catch (err) {
+    console.error("Error fetching post with comments:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
+
 
 export const createPostController = async (
   req: Request,
@@ -78,44 +94,56 @@ export const createPostController = async (
   }
 };
 
-export const updatePostController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+
+export const updatePostController = async (req: Request, res: Response): Promise<void> => {
+  const postId = Number(req.params.id);
+  const { title, content } = req.body;
+
+  if (isNaN(postId)) {
+    res.status(400).json({ error: "Invalid post ID" });
+    return;
+  }
+
+  if (!title || !content) {
+    res.status(400).json({ error: "Title and content are required" });
+    return;
+  }
+
   try {
-    const updatedPost: post = req.body;
-    let validate = validatePost(updatedPost);
-    const postId = Number(req.params.postId);
-    if (isNaN(postId)) {
-      res.status(400).send("Invalid post ID");
-      return;
-    }
-    if (!req.body || !req.body.title || !req.body.user_id) {
-      throw new Error("הנתונים לא  מספקים.");
-    }
-    let response = await updatePost(postId, req.body);
-    console.log("עודכן בהצלחה");
-    res.status(200).json("פרטי המשימה עודכנו בהצלחה");
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json(error.message);
+    const updated = await updatePostById(postId, { title, content });
+    if (!updated) {
+      res.status(404).json({ error: "Post not found" });
     } else {
-      res.status(500).json("An unknown error occurred");
+      res.json(updated);
     }
+  } catch (err) {
+    console.error("Error updating post:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const deletePostController = async (req: Request, res: Response) => {
-  const postId = Number(req.params.postId);
-  if (isNaN(postId)) res.status(400).send("Invalid post ID");
 
-  const post = await getPostById(postId);
-  if (!post) res.status(404).send("Post not found");
-  if (req.user?.id !== post?.userId) res.status(403).send("Unauthorized");
 
-  await deletePost(postId);
-  res.send("Post deleted");
+export const deletePostController = async (req: Request, res: Response): Promise<void> => {
+  const postId = Number(req.params.id);
+  if (isNaN(postId)) {
+    res.status(400).json({ error: "Invalid post ID" });
+    return;
+  }
+
+  try {
+    const success = await deletePostById(postId);
+    if (success) {
+      res.json({ message: "Post deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Post not found" });
+    }
+  } catch (err) {
+    console.error("Error deleting post:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
+
 
 export const getUsersWhoLikedPostController = async (
   req: Request,

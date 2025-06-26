@@ -10,7 +10,7 @@ export interface newUser {
   passwordHash: string;
   address?: string;
   profileImageUrl?: string;
-  role?: "admin" | "author" | "user";
+  role?: "admin" | "moderator" | "user";
   isVerifiedAuthor?: boolean;
 }
 
@@ -24,7 +24,7 @@ export interface basicUserData {
   fullname: string;
   email: string;
   profileImageUrl?: string;
-  role?: "admin" | "author" | "user";
+  role?: "admin" | "moderator" | "user";
   isVerifiedAuthor?: boolean;
 }
 // interface JwtPayload {

@@ -1,137 +1,72 @@
-import { useParams } from "react-router-dom";
-import { fetchResource, addResource, updateResource, deleteResource } from "./DBAPI";
-import { useState, useEffect, useContext } from "react";
-import Post from "./Post";
-import { userContext } from "./App";
-import type { PostData } from "./models";
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { fetchResource } from "./DBAPI";
 
-function Forum() {
-    const { forumId } = useParams();
-    const [forumInfo, setForumInfo] = useState(null);
-    const [posts, setPosts] = useState([]);
-    const [newPostTitle, setNewPostTitle] = useState("");
-    const [newPostContent, setNewPostContent] = useState("");
-    const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
-    const { contextUser } = useContext(userContext);
-
-    const fetchForumData = async () => {
-        if (forumId) {
-            try {
-                const forum = await fetchResource(`forums/${forumId}`);
-                setForumInfo(forum);
-            } catch (err) {
-                console.error("Error fetching forum info:", err);
-            }
-        }
-    };
-
-    const fetchPosts = async () => {
-        if (forumId) {
-            try {
-                const postsData = await fetchResource("posts", { forumId });
-                setPosts(postsData || []);
-            } catch (err) {
-                console.error("Error fetching posts:", err);
-            }
-        }
-    };
-
-    const handleAddPost = async () => {
-        if (!contextUser) {
-            alert("Please log in to add a post.");
-            return;
-        }
-        if (!newPostTitle.trim() || !newPostContent.trim()) {
-            alert("Please provide both a title and content for the post.");
-            return;
-        }
-        try {
-            const newPost = {
-                title: newPostTitle,
-                content: newPostContent,
-                forumId: Number(forumId),
-                userId: contextUser.id,
-            };
-            await addResource("posts", newPost);
-            setNewPostTitle("");
-            setNewPostContent("");
-            fetchPosts();
-        } catch (err) {
-            console.error("Error adding post:", err);
-        }
-    };
-
-    const handlePostUpdated = async (id:number, updatedData:PostData) => {
-        try {
-            await updateResource("posts", id, updatedData);
-            fetchPosts();
-        } catch (err) {
-            console.error("Error updating post:", err);
-        }
-    };
-
-    const handlePostDeleted = async (id:number) => {
-        try {
-            await deleteResource("posts", id);
-            fetchPosts();
-        } catch (err) {
-            console.error("Error deleting post:", err);
-        }
-    };
-
-    const handleSelectPost = (id:number) => {
-        setSelectedPostId(prev => (prev === id ? null : id));
-    };
-
-    useEffect(() => {
-        fetchForumData();
-        fetchPosts();
-    }, [forumId]);
-
-    return (
-        <div>
-            {forumInfo && (
-                <>
-                    <h1>{forumInfo.title}</h1>
-                    <p>{forumInfo.description}</p>
-                </>
-            )}
-
-            <h2>Posts</h2>
-            
-            {contextUser && (
-                <div>
-                    <h3>Add New Post</h3>
-                    <input
-                        type="text"
-                        placeholder="Title"
-                        value={newPostTitle}
-                        onChange={(e) => setNewPostTitle(e.target.value)}
-                    />
-                    <br />
-                    <textarea
-                        placeholder="Content"
-                        value={newPostContent}
-                        onChange={(e) => setNewPostContent(e.target.value)}
-                    />
-                    <br />
-                    <button onClick={handleAddPost}>Add Post</button>
-                </div>
-            )}
-
-            {posts.map(post => (
-                <Post
-                    key={post.id}
-                    post={post}
-                    WhosPosts="forumPosts"
-                    onPostUpdated={handlePostUpdated}
-                    onPostDeleted={handlePostDeleted}
-                    isSelected={post.id === selectedPostId}
-                    onSelect={() => handleSelectPost(post.id)}
-                />
-            ))}
-        </div>
-    );
+interface Forum {
+  id: number;
+  title: string;
+  description: string;
+  createdBy: number;
+  created_at: string;
 }
 
-export default Forum;
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  userId: number;
+  createdAt: string;
+}
+
+export default function Forum() {
+  const { id } = useParams<{ id: string }>();
+  const [forum, setForum] = useState<Forum | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadForum = async () => {
+      if (!id) return;
+      const data = await fetchResource(`forums/${id}`);
+      console.log("DATA FROM SERVER:", data);
+      if (data) {
+        setForum(data.forum);
+        setPosts(data.posts);
+      }
+      setLoading(false);
+    };
+
+    loadForum();
+  }, [id]);
+
+  if (loading) return <p>טוען פורום...</p>;
+
+  if (!forum) return <p>הפורום לא נמצא.</p>;
+
+  return (
+    <div className="forum-page">
+      <h2>{forum.title}</h2>
+      <p>{forum.description}</p>
+      <p>
+        <small>נוצר בתאריך: {new Date(forum.created_at).toLocaleString()}</small>
+      </p>
+
+      <h3>פוסטים בפורום</h3>
+      {posts.length === 0 ? (
+        <p>אין פוסטים בפורום זה עדיין.</p>
+      ) : (
+        <ul>
+          {posts.map((post) => (
+            <li key={post.id} style={{ marginBottom: "1rem" }}>
+              <Link to={`/posts/${post.id}`}>
+                <strong>{post.title}</strong>
+              </Link>
+              <p>{post.content.slice(0, 100)}...</p>
+              <small>מאת משתמש {post.userId} בתאריך {new Date(post.createdAt).toLocaleString()}</small>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

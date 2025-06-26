@@ -1,24 +1,23 @@
 import express from "express";
 import {
-  getAllPostsController as getAllPosts,
-  getPostsByUserController as getPostsByUser,
-  getPostByIdController as getPostById,
-  createPostController as createPost,
-  updatePostController as updatePost,
-  deletePostController as deletePost,
-  getUsersWhoLikedPostController as getUsersWhoLikedPost,
+   getAllPostsController,
+  getPostsByUserController,
+  getPostByIdController,
+  createPostController,
+  updatePostController,
+  deletePostController,
+  getUsersWhoLikedPostController
 } from "../controller/postController";
 import authenticateToken from "../services/authMiddleware";
 
 const router = express.Router();
 
-router.get("/", getAllPosts);
-router.get("/user/:userId", getPostsByUser);
-router.get("/:postId", getPostById);
-router.get("/:postId/likes", getUsersWhoLikedPost);
-
-router.post("/", createPost);
-router.put("/:postId", updatePost);
-router.delete("/:postId", deletePost);
+router.get("/", getAllPostsController);
+router.get("/user/:userId", getPostsByUserController);
+router.get("/:id", getPostByIdController);
+router.get("/:postId/likes", getUsersWhoLikedPostController);
+router.post("/", createPostController);
+router.put("/:id", updatePostController);
+router.delete("/:id", deletePostController);
 
 export default router;

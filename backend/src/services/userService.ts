@@ -1,9 +1,7 @@
 import pool from "../db";
 import { loginUser, newUser, user, basicUserData } from "../model/userModel";
 
-export async function getUserByUsername(
-  username: string
-): Promise<user | null> {
+export async function getUserByUsername(username: string): Promise<user | null> {
   const sql = "SELECT * FROM users WHERE username = ?";
   const values = [username];
   try {

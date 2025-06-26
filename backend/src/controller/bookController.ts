@@ -1,33 +1,51 @@
 import { Request, Response } from "express";
-import { rateBook, getAverageRating } from "../services/bookService";
-import jwt from "jsonwebtoken";
+import * as bookService from "../services/bookService";
 
-//חיפוש ספרים לפי שם, מחבר, קטגוריה
+export const getAllBooksController = async (req: Request, res: Response) => {
+  const books = await bookService.getAllBooks();
+  res.json(books);
+};
 
+export const getBookByIdController = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) { res.status(400).send("Invalid book ID");
+    return
+  }
+  const book = await bookService.getBookById(id);
+  if (!book)
+    {res.status(404).send("Book not found");
+    return;
+  } 
+     
+  res.json(book);
+};
 
-//לכתוב פונקציה הוספת ספר מיועדת רק לסופרים מאושרים
-//
+export const addRatingController = async (req: Request, res: Response) => {
+  const bookId = Number(req.params.id);
+  const { userId, rating } = req.body;
 
+  if (isNaN(bookId) || !userId || !rating) {
+     res.status(400).send("Missing or invalid data");
+     return
+  }
 
-//משתמש יכול לדרג ספרים
-// export const rateBookController = async (req: Request, res: Response): Promise<void> => {
-//     const bookId = Number(req.params.bookId);
-//     const userId = req. user?.id; // Assuming user ID is stored in req.user after authentication
-//     const { rating } = req.body;
+  await bookService.addRating(bookId, userId, rating);
+  res.json({ message: "Rating saved" });
 
-//     if (isNaN(bookId) || !userId) res.status(400).send("Invalid data");
-//     if (!rating || rating < 1 || rating > 5) res.status(400).send("Invalid rating");
+};
 
-//     await rateBook(bookId, userId, rating);
-//     res.send("Rating saved");
-// };
+export const getAverageRatingController = async (req: Request, res: Response) => {
+  const bookId = Number(req.params.id);
+  if (isNaN(bookId)) { res.status(400).send("Invalid book ID");
+    return
+  }
 
-// export const getAverageRatingController = async (req: Request, res: Response) => {
-//     const bookId = Number(req.params.bookId);
-//     if (isNaN(bookId)) {
-//         res.status(400).send("Invalid book ID")
-//         return
-//     };
-//     const avg = await getAverageRating(bookId);
-//     res.json({ averageRating: avg });
-// };
+  const avg = await bookService.getAverageRating(bookId);
+
+  if (typeof avg !== "number" || isNaN(avg)) {
+    res.json({ average: null });
+    return;
+  }
+
+  res.json({ averageRating: avg });
+};

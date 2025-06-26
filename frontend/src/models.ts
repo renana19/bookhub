@@ -22,7 +22,7 @@ export interface ForumData {
   createdAt: string;
   bookId: number;
   createdBy: number;
-  isRecommendation: boolean;
+  
   created_at: string;
   updatedAt: string;
 }

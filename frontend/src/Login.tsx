@@ -33,7 +33,7 @@ function Login() {
 
       // עדכון המשתמש בהקשר
       setcontextUser(userData);
-      navigate("/userprofile/" + userData.id); // ניווט לפרופיל המשתמש
+      navigate("/"); // ניווט לעמוד הבית
     } else {
       setMessage("שם משתמש או סיסמה לא נכונים");
     }

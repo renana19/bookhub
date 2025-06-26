@@ -1,9 +1,12 @@
 import express from "express";
-import { getCommentsController } from "../controller/commentsController";
-//import { rateBookController as rateBook , getAverageRatingController as  getAverageRating } from "../controller/bookController";
+import { addCommentController,updateCommentController,deleteCommentController } from "../controller/commentsController";
 
 const router = express.Router();
 
-router.get("/:postId", getCommentsController);
+router.post("/", addCommentController);
+
+router.put("/:id", updateCommentController);
+router.delete("/:id", deleteCommentController);
+
 
 export default router;

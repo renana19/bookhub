@@ -3,10 +3,10 @@ import { newPost, post } from "../model/postModel";
 import { userLike } from "../model/userModel";
 import { comment } from "../model/commentModel";
 
-export const getAllPosts = async (): Promise<post[]> => {
-  const [rows] = await pool.query("SELECT * FROM posts");
-  return rows as post[];
-};
+// export const getAllPosts = async (): Promise<post[]> => {
+//   const [rows] = await pool.query("SELECT * FROM posts");
+//   return rows as post[];
+// };
 
 export const getPostsByUser = async (userId: number): Promise<post[]> => {
   const [rows] = await pool.query("SELECT * FROM posts WHERE userId = ?", [
@@ -29,26 +29,27 @@ export const getPostWithCommentsById = async (postId: number): Promise<{ post: p
   return { post, comments: commentRows as comment[] };
 };
 
-export async function createPost(newPostData: newPost): Promise<post | null> {
-  const sql = `
-    INSERT INTO posts (forumId, userId,title, content,  createdAt) VALUES (?, ?, ?, ?, NOW()) `;
-  const values = [
-    newPostData.forumId,
-    newPostData.userId,
-    newPostData.title,
-    newPostData.content,
 
-    newPostData.createdAt,
-  ];
-
+export const addPostService = async (data: newPost): Promise<post | null> => {
   try {
-    const [result] = await pool.execute(sql, values);
-    return newPostData as post; // Return the post object with the same structure
+    const sql = `
+      INSERT INTO posts (forumId, userId, title, content, createdAt)
+      VALUES (?, ?, ?, ?, NOW())
+    `;
+    const values = [data.forumId, data.userId, data.title, data.content];
+    const [result]: any = await pool.execute(sql, values);
+
+    const insertedId = result.insertId;
+
+    // שליפה של הפוסט שהתווסף
+    const [rows] = await pool.query("SELECT * FROM posts WHERE id = ?", [insertedId]);
+    return (rows as post[])[0] || null;
   } catch (err) {
-    console.error("Error adding post:", err);
+    console.error("DB error adding post:", err);
     return null;
   }
-}
+};
+
 
 export const updatePostById = async (
   postId: number,

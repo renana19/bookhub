@@ -5,3 +5,9 @@ export interface comment {
   createdAt: Date;
   postId: number;
 }
+
+export interface NewCommentData {
+  postId: number;
+  userId: number;
+  content: string;
+}

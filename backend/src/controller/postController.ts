@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
 import {
-  createPost,
+  
   deletePostById ,
-  getAllPosts,
+  addPostService,
   getPostWithCommentsById,
   getPostsByUser,
   updatePostById,
@@ -18,18 +18,18 @@ const isOwn = (id: number, user: user) => {
   return id == user.id;
 };
 
-export const getAllPostsController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const posts = await getAllPosts();
-    console.log(posts);
-    res.status(200).json(posts);
-  } catch (error) {
-    res.status(500).json({ message: "שגיאה בשליפת הפוסטים" });
-  }
-};
+// export const getAllPostsController = async (
+//   req: Request,
+//   res: Response
+// ): Promise<void> => {
+//   try {
+//     const posts = await getAllPosts();
+//     console.log(posts);
+//     res.status(200).json(posts);
+//   } catch (error) {
+//     res.status(500).json({ message: "שגיאה בשליפת הפוסטים" });
+//   }
+// };
 
 export const getPostsByUserController = async (
   req: Request,
@@ -68,29 +68,24 @@ export const getPostByIdController = async (req: Request, res: Response): Promis
 };
 
 
-export const createPostController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const post: newPost = req.body;
-  let validate = validatePost(post);
-  if (validate.success === false) {
-    res.status(400).json(validate.errors);
-    return;
+export const addPostController = async (req: Request, res: Response) => {
+  const { forumId, userId, title, content ,createdAt} = req.body;
+
+  if (!forumId || !userId || !title || !content) {
+     res.status(400).json({ error: "All fields are required" });
+     return
   }
 
   try {
-    const addedPost = await createPost(post);
-    if (addedPost) {
-      res
-        .status(201)
-        .json({ message: "post created successfully", post: createPost });
+    const added = await addPostService({ forumId, userId, title, content, createdAt });
+    if (added) {
+      res.status(201).json(added);
     } else {
-      res.status(500).json({ message: "Failed to creat post" });
+      res.status(500).json({ error: "Failed to add post" });
     }
-  } catch (error) {
-    console.error("Error creating post:", error);
-    res.status(500).json({ message: "Internal server error" });
+  } catch (err) {
+    console.error("Error adding post:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 

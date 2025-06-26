@@ -89,6 +89,18 @@ export default function Post() {
     navigate(`/forums/${post.forumId}`);  // מעביר לעמוד הפורום של הפוסט שנמחק
   };
 
+
+
+const handleCommentUpdatedOrDeleted = (id: number, updated?: CommentModel) => {
+  if (updated) {
+    setComments(prev => prev.map(c => c.id === id ? updated : c));
+  } else {
+    setComments(prev => prev.filter(c => c.id !== id));
+  }
+};
+
+
+
   const handleAddComment = async () => {
     if (!newComment.trim() || !post) {
       alert("הכנס תוכן לתגובה");
@@ -186,7 +198,7 @@ export default function Post() {
       <div>
         <h4>תגובות</h4>
         {comments.slice(0, visibleCount).map((c) => (
-          <Comment key={c.id} comment={c} />
+          <Comment key={c.id} comment={c} onCommentUpdatedOrDeleted={handleCommentUpdatedOrDeleted} />
         ))}
         {visibleCount < comments.length && (
           <button onClick={showMoreComments}>טען עוד תגובות</button>

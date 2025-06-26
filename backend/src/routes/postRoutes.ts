@@ -1,9 +1,9 @@
 import express from "express";
 import {
-   getAllPostsController,
+   addPostController,
   getPostsByUserController,
   getPostByIdController,
-  createPostController,
+  
   updatePostController,
   deletePostController,
   getUsersWhoLikedPostController
@@ -12,11 +12,11 @@ import authenticateToken from "../services/authMiddleware";
 
 const router = express.Router();
 
-router.get("/", getAllPostsController);
 router.get("/user/:userId", getPostsByUserController);
 router.get("/:id", getPostByIdController);
 router.get("/:postId/likes", getUsersWhoLikedPostController);
-router.post("/", createPostController);
+router.post("/", addPostController);
+
 router.put("/:id", updatePostController);
 router.delete("/:id", deletePostController);
 
